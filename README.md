@@ -1,0 +1,56 @@
+Description
+===========
+
+Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Organization) publish a daily updated and freely available file containing information on the distribution of Internet number resources. This file is called "delegated-extended". From there rirccfilter extracts IP ranges grouped by country and outputs them in different formats.
+
+
+Installation
+============
+
+1. Clone this repository: `git clone https://github.com/mskuta/rirccfilter.git`
+2. Run the included installation script: `sudo rirccfilter/install.sh`
+
+The default target directory for the executable is `/usr/local/bin`. Use the environment variable `PREFIX` to change this. For example, to install the software under your home directory, enter `PREFIX=$HOME/.local rirccfilter/install.sh` and make sure `$HOME/.local/bin` is in your `$PATH`.
+
+Debian and derivatives (Ubuntu, Raspbian, etc.) 
+-----------------------------------------------
+
+1. Download the latest .deb package from the Releases page.
+2. Install it: `sudo dpkg --install rirccfilter_x.y.z_all.deb`
+
+
+Usage
+=====
+
+```
+Usage: rirccfilter COMMAND CC ...
+Commands:
+  cidr  Output IP ranges in CIDR address format.
+  p2p   Output IP ranges in P2P plaintext format.
+```
+
+`CC` specifies one or more ISO 3166 2-letter codes whose IP ranges should be included in the result. RIR datasets are read from stdin. The result is written to stdout.
+
+Example
+-------
+
+Block all requests from Germany to port 8080:
+```shell
+# the ipset package has to be installed
+sudo ipset create ban-DE hash:net
+curl -fLsS https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended \
+  | rirccfilter cidr DE \
+  | while read net; do sudo ipset add ban-DE $net; done
+sudo iptables --insert INPUT --protocol udp --dport 8080 --match set --match-set ban-DE src --jump DROP
+sudo iptables --insert INPUT --protocol tcp --dport 8080 --match set --match-set ban-DE src --jump DROP
+```
+
+Hint: Whereas the "delegated-extended" files of the individual RIRs contain only data on the countries for which they are responsible, the file of the NRO contains the data of all RIRs.
+
+
+License
+=======
+
+This software is distributed under the ISC license.
+
+
