@@ -29,7 +29,7 @@ Commands:
   p2p   Output IP ranges in P2P plaintext format.
 ```
 
-`CC` specifies one or more ISO 3166 2-letter codes whose IP ranges should be included in the result. RIR datasets are read from stdin. The result is written to stdout.
+`CC` specifies one or more ISO 3166 2-letter codes whose IP ranges should be included in the result. RIR datasets are read from stdin. The result is written to stdout. Metadata is shown on stderr.
 
 Example
 -------

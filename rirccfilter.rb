@@ -26,10 +26,10 @@ begin
     next if flds.nil?
     if flds.size == 6 && flds[-1].eql?('summary')
       # this line is a header (summary)
-      nil
+      next
     elsif flds.size == 7
       # this line is a header (version)
-      nil
+      [%w[Version Registry Serial Records Startdate Enddate UTC-Offset], flds].transpose.each { |k, v| $stderr.puts("#{k}: #{v}") }
     elsif flds.size >= 8
       # this line is a record
       if CC.include?(flds[1])
