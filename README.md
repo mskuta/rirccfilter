@@ -15,7 +15,7 @@ The default target directory for the executable is `/usr/local/bin`. Use the env
 Debian and derivatives (Ubuntu, Raspbian, etc.) 
 -----------------------------------------------
 
-1. Download the latest .deb package from the Releases page.
+1. Download the latest .deb package from the [Releases](https://github.com/mskuta/rirccfilter/releases/latest) page.
 2. Install it: `sudo dpkg --install rirccfilter_x.y.z_all.deb`
 
 
