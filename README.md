@@ -23,13 +23,15 @@ Usage
 =====
 
 ```
-Usage: rirccfilter COMMAND CC ...
+Usage: rirccfilter COMMAND [CC...]
 Commands:
   cidr  Output IP ranges in CIDR address format.
   p2p   Output IP ranges in P2P plaintext format.
 ```
 
-`CC` specifies one or more ISO 3166 2-letter codes whose IP ranges should be included in the result. RIR datasets are read from stdin. The result is written to stdout. Metadata is shown on stderr.
+`CC` specifies one or more ISO 3166 2-letter codes whose IP ranges should be included in the result. Omitting any code will process all records.
+
+RIR datasets are read from stdin. The result is written to stdout. Metadata is shown on stderr.
 
 Example
 -------
