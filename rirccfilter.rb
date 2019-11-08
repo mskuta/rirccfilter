@@ -20,7 +20,8 @@ begin
   CC = ARGV
   CC.each { |cc| raise "Invalid country code: #{cc}" unless cc.upcase.match?(/\A[A-Z]{2}\Z/) }
   CC.map!(&:upcase)
-  $stdin.each_line.with_index(1) do |ln, ix|
+  counts = Hash.new(0)
+  $stdin.each_line do |ln|
     flds = CSV.parse_line(ln, col_sep: '|', skip_blanks: true, skip_lines: /\A#/)
     next if flds.nil?
     if flds.size == 6 && flds[-1].eql?('summary')
@@ -34,12 +35,13 @@ begin
       next if !CC.empty? && !CC.include?(flds[1])
       next unless flds[2].eql?('ipv4')
 
+      counts[flds[1]] += 1
       net = NetAddr::CIDRv4.create('%s/%d' % [flds[3], 32 - Math.log2(Float(flds[4]))])
       case COMMAND
       when 'cidr'
         puts(net.to_s)
       when 'p2p'
-        puts("#{ix}:#{net.first}-#{net.last}")
+        puts('%s%d:%s-%s' % [flds[1], counts[flds[1]], net.nth(1), net.nth(net.size - 2)])
       else
         raise UsageError
       end
