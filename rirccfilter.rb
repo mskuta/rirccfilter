@@ -36,12 +36,12 @@ begin
       next unless flds[2].eql?('ipv4')
 
       counts[flds[1]] += 1
-      net = NetAddr::CIDRv4.create('%s/%d' % [flds[3], 32 - Math.log2(Float(flds[4]))])
+      net = NetAddr::CIDRv4.create(format('%s/%d', flds[3], 32 - Math.log2(Float(flds[4]))))
       case COMMAND
       when 'cidr'
         puts(net.to_s)
       when 'p2p'
-        puts('%s%d:%s-%s' % [flds[1], counts[flds[1]], net.nth(1), net.nth(net.size - 2)])
+        puts(format('%s%d:%s-%s', flds[1], counts[flds[1]], net.nth(1), net.nth(net.size - 2)))
       else
         raise UsageError
       end
