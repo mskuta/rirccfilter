@@ -36,7 +36,7 @@ RIR datasets are read from stdin. The result is written to stdout. Metadata is s
 Example
 -------
 
-Block all requests from Germany to port 8080:
+Block TCP and UDP requests from Germany to port 8080 in a Linux kernel firewall:
 ```shell
 # the ipset package has to be installed
 sudo ipset create ban-DE hash:net
