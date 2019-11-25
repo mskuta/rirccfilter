@@ -1,26 +1,35 @@
-Description
-===========
+# Description
 
 Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Organization) publish a daily updated and freely available file containing information on the distribution of Internet number resources. This file is called "delegated-extended". From there rirccfilter extracts IP ranges grouped by country and outputs them in different formats.
 
 
-Installation
-============
+# Installation
 
-1. Clone this repository: `git clone https://github.com/mskuta/rirccfilter.git`
-2. Run the included installation script: `sudo rirccfilter/install.sh`
+## From package
 
-The default target directory for the executable is `/usr/local/bin`. Use the environment variable `PREFIX` to change this. For example, to install the software under your home directory, enter `PREFIX=$HOME/.local rirccfilter/install.sh` and make sure `$HOME/.local/bin` is in your `$PATH`.
-
-Debian and derivatives (Ubuntu, Raspbian, etc.) 
------------------------------------------------
+### Debian and derivatives (Ubuntu, Raspbian, etc.)
 
 1. Download the latest .deb package from the [Releases](https://github.com/mskuta/rirccfilter/releases/latest) page.
 2. Install it: `sudo dpkg --install rirccfilter_x.y.z_all.deb`
 
+## From source
 
-Usage
-=====
+### As root user
+
+1. Clone this repository: `git clone https://github.com/mskuta/rirccfilter.git`
+2. Run the included installation script: `sudo rirccfilter/install.sh`
+3. Make sure `/usr/local/bin` is in your `$PATH`.
+4. Install the only dependency: `sudo gem install netaddr --version 1.5.1`
+
+### As unprivileged user
+
+1. Clone this repository: `git clone https://github.com/mskuta/rirccfilter.git`
+2. Run the included installation script: `PREFIX=$HOME/.local rirccfilter/install.sh`
+3. Make sure `$HOME/.local/bin` is in your `$PATH`.
+4. Install the only dependency: `gem install netaddr --version 1.5.1 --user-install`
+
+
+# Usage
 
 ```
 Usage: rirccfilter COMMAND [CC...]
@@ -33,8 +42,7 @@ Commands:
 
 RIR datasets are read from stdin. The result is written to stdout. Metadata is shown on stderr.
 
-Example
--------
+## Example
 
 Block TCP and UDP requests from Germany to port 8080 in a Linux kernel firewall:
 ```shell
@@ -50,8 +58,7 @@ sudo iptables --insert INPUT --protocol tcp --dport 8080 --match set --match-set
 Hint: Whereas the "delegated-extended" files of the individual RIRs contain only data on the countries for which they are responsible, the file of the NRO contains the data of all RIRs.
 
 
-License
-=======
+# License
 
 This software is distributed under the ISC license.
 
