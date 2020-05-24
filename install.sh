@@ -12,10 +12,10 @@ PREFIX="${PREFIX:-/usr/local}"
 
 # install program
 DSTDIR="$PREFIX/bin"
-SRCFILE='rirccfilter.rb'
+SRCFILE='rirccfilter.awk'
 DSTFILE="${SRCFILE%%.*}"
 TMPFILE="$(mktemp)"
-printf '#!/usr/bin/env ruby\n\n' | cat - "$SRCDIR/$SRCFILE" >"$TMPFILE"
+printf '#!/usr/bin/awk -f\n\n' | cat - "$SRCDIR/$SRCFILE" >"$TMPFILE"
 install -D "$TMPFILE" "$DSTDIR/$DSTFILE"
 unlink "$TMPFILE"
 

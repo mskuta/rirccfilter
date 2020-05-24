@@ -22,7 +22,7 @@ cat <<END >"$PKGNAME/DEBIAN/control"
 Package: $PRJNAME
 Version: $VERSION
 Architecture: all
-Depends: ruby | ruby-interpreter, ruby-netaddr
+Depends: gawk
 Description: Extract IP ranges per country from RIR datasets
 Homepage: https://github.com/mskuta/$PRJNAME
 Maintainer: Martin Skuta (https://github.com/mskuta)

@@ -1,6 +1,6 @@
 # Description
 
-Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Organization) publish a daily updated and freely available file containing information on the distribution of Internet number resources. This file is called "delegated-extended". From there rirccfilter extracts IP ranges grouped by country and outputs them in different formats.
+Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Organization) publish a daily updated and freely available file containing information on the distribution of Internet number resources. This file is called "delegated-extended". From there rirccfilter extracts IP ranges grouped by country and outputs them in CIDR notation.
 
 
 # Installation
@@ -19,37 +19,41 @@ Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Orga
 1. Clone this repository: `git clone https://github.com/mskuta/rirccfilter.git`
 2. Run the included installation script: `sudo rirccfilter/install.sh`
 3. Make sure `/usr/local/bin` is in your `$PATH`.
-4. Install the only dependency: `sudo gem install netaddr --version 1.5.1`
 
 ### As unprivileged user
 
 1. Clone this repository: `git clone https://github.com/mskuta/rirccfilter.git`
 2. Run the included installation script: `PREFIX=$HOME/.local rirccfilter/install.sh`
 3. Make sure `$HOME/.local/bin` is in your `$PATH`.
-4. Install the only dependency: `gem install netaddr --version 1.5.1 --user-install`
 
 
 # Usage
 
 ```
-Usage: rirccfilter COMMAND [CC...]
-Commands:
-  cidr  Output IP ranges in CIDR address format.
-  p2p   Output IP ranges in P2P plaintext format.
+Usage: rirccfilter [-v cc=CC]
 ```
 
-`CC` specifies one or more ISO 3166 2-letter codes whose IP ranges should be included in the result. Omitting any code will process all records.
+`CC` specifies an ISO 3166 2-letter code whose IP ranges should be included in the result. Omitting it will process all records.
 
 RIR datasets are read from stdin. The result is written to stdout. Metadata is shown on stderr.
 
-## Example
+## Examples
+
+Convert output to P2P plaintext format:
+```shell
+# the sipcalc package has to be installed
+curl -fLsS https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended \
+  | rirccfilter \
+  | sipcalc - \
+  | awk -e '/^\[CIDR\]$/,/^-$/ { split($0, a, "[ \t]+-[ \t]+"); if (a[1] ~ /^Host address \(hex\)$/) { id = a[2] } else if (a[1] ~ /^Usable range$/) { from = a[2]; to = a[3] } } /^-$/ { print(id":"from"-"to) }'
+```
 
 Block TCP and UDP requests from Germany to port 8080 in a Linux kernel firewall:
 ```shell
 # the ipset package has to be installed
 sudo ipset create ban-DE hash:net
 curl -fLsS https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended \
-  | rirccfilter cidr DE \
+  | rirccfilter -v cc=DE \
   | while read net; do sudo ipset add ban-DE $net; done
 sudo iptables --insert INPUT --protocol udp --dport 8080 --match set --match-set ban-DE src --jump DROP
 sudo iptables --insert INPUT --protocol tcp --dport 8080 --match set --match-set ban-DE src --jump DROP
