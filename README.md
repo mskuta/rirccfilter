@@ -1,6 +1,6 @@
 # Description
 
-Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Organization) publish a daily updated and freely available file containing information on the distribution of Internet number resources. This file is called "delegated-extended". From there rirccfilter extracts IP ranges grouped by country and outputs them in CIDR notation.
+Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Organization) publish a daily updated and freely available file containing information on the distribution of Internet number resources. This file is called "delegated-extended". From there rirccfilter extracts IP ranges grouped by country and outputs them in different formats.
 
 
 # Installation
@@ -30,36 +30,33 @@ Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Orga
 # Usage
 
 ```
-Usage: rirccfilter [-v cc=CC]
+Usage: rirccfilter [-v cc=CC] [-v format=FORMAT]
+
+CC has to be an ISO 3166 2-letter code.
+
+FORMAT can be one of:
+  cidr  Output IP ranges in CIDR address format.
+  p2p   Output IP ranges in P2P plaintext format (default).
+
 ```
 
-`CC` specifies an ISO 3166 2-letter code whose IP ranges should be included in the result. Omitting it will process all records.
+`CC` specifies a country code whose IP ranges should be included in the result. Omitting it will process all records.
 
-RIR datasets are read from stdin. The result is written to stdout. Metadata is shown on stderr.
+RIR datasets can be passed either as filename or via stdin. The result is written to stdout. Metadata is shown on stderr.
 
-## Examples
+Hint: Whereas datasets of individual RIRs contain only records about countries for which they are responsible, the file of the NRO includes the records of all RIRs.
 
-Convert output to P2P plaintext format:
+## Example
+
+Define an IP set called "ban-DE", download the latest RIR dataset, filter IP addresses from Germany, store them in the IP set and block TCP requests from its members to port 8080 in a Linux kernel firewall:
 ```shell
-# the sipcalc package has to be installed
-curl -fLsS https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended \
-  | rirccfilter \
-  | sipcalc - \
-  | awk -e '/^\[CIDR\]$/,/^-$/ { split($0, a, "[ \t]+-[ \t]+"); if (a[1] ~ /^Host address \(hex\)$/) { id = a[2] } else if (a[1] ~ /^Usable range$/) { from = a[2]; to = a[3] } } /^-$/ { print(id":"from"-"to) }'
-```
-
-Block TCP and UDP requests from Germany to port 8080 in a Linux kernel firewall:
-```shell
-# the ipset package has to be installed
+# package "ipset" has to be installed
 sudo ipset create ban-DE hash:net
 curl -fLsS https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended \
-  | rirccfilter -v cc=DE \
+  | rirccfilter -v cc=DE -v format=cidr \
   | while read net; do sudo ipset add ban-DE $net; done
-sudo iptables --insert INPUT --protocol udp --dport 8080 --match set --match-set ban-DE src --jump DROP
 sudo iptables --insert INPUT --protocol tcp --dport 8080 --match set --match-set ban-DE src --jump DROP
 ```
-
-Hint: Whereas the "delegated-extended" files of the individual RIRs contain only data on the countries for which they are responsible, the file of the NRO contains the data of all RIRs.
 
 
 # License

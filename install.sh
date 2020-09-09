@@ -12,10 +12,10 @@ PREFIX="${PREFIX:-/usr/local}"
 
 # install program
 DSTDIR="$PREFIX/bin"
-SRCFILE='rirccfilter.awk'
+SRCFILE='rirccfilter.gawk'
 DSTFILE="${SRCFILE%%.*}"
 TMPFILE="$(mktemp)"
-printf '#!/usr/bin/awk -f\n\n' | cat - "$SRCDIR/$SRCFILE" >"$TMPFILE"
+printf '#!/usr/bin/gawk -f\n\n' | cat - "$SRCDIR/$SRCFILE" >"$TMPFILE"
 install -D "$TMPFILE" "$DSTDIR/$DSTFILE"
 unlink "$TMPFILE"
 
