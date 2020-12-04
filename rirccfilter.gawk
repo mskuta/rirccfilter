@@ -2,11 +2,8 @@
 # For full terms see the included COPYING file.
 
 function showusage() {
-	print("Usage: rirccfilter [-v cc=CC] [-v format=FORMAT]") >"/dev/stderr"
+	print("Usage: rirccfilter [-v cc=CC]") >"/dev/stderr"
 	print("\nCC has to be an ISO 3166 2-letter code.") >"/dev/stderr"
-	print("\nFORMAT can be one of:") >"/dev/stderr"
-	print("  cidr  Output IP ranges in CIDR address format.") >"/dev/stderr"
-	print("  p2p   Output IP ranges in P2P plaintext format (default).") >"/dev/stderr"
 	print("") >"/dev/stderr"
 	exit 2
 }
@@ -17,14 +14,6 @@ BEGIN {
 
 	# calculate this only once
 	logof2 = log(2)
-
-	# check given format 
-	_format = "p2p"
-	if (format) {
-		if (format != "cidr" && format != "p2p")
-			showusage()
-		_format = format
-	}
 
 	# check given country code
 	_cc = ""
@@ -65,40 +54,25 @@ NF == 9 && $3 == "ipv4" {
 	if (_cc && _cc != $2)
 		next
 
-	switch (_format) {
-		case "cidr":
-			logofhostcount = log($5)
-			hostbits = logofhostcount / logof2
-			if (and($5, $5 - 1) != 0) {
-				# not all records represent CIDR ranges; round up to
-				# ensure that all host identifiers of the selected
-				# country are included
-				hostbits = int(hostbits) + 1
-			}
-			print($4 "/" 32 - hostbits)
-			break
-		case "p2p":
-			split($4, octets, ".")
-			network = lshift(octets[1], 24) + lshift(octets[2], 16) + lshift(octets[3], 8) + octets[4]
+	split($4, octets, ".")
+	network = lshift(octets[1], 24) + lshift(octets[2], 16) + lshift(octets[3], 8) + octets[4]
 
-			# determine usable IP range by excluding network and broadcast
-			# addresses
-			hostmin = network + 1
-			hostmax = network + $5 - 2
+	# determine usable IP range by excluding network and broadcast
+	# addresses
+	hostmin = network + 1
+	hostmax = network + $5 - 2
 
-			printf("%s%d:%d.%d.%d.%d-%d.%d.%d.%d\n",
-			       $2,
-			       ++n[$2],
-			       and(rshift(hostmin, 24), 0xff),
-			       and(rshift(hostmin, 16), 0xff),
-			       and(rshift(hostmin,  8), 0xff),
-			       and(hostmin, 0xff),
-			       and(rshift(hostmax, 24), 0xff),
-			       and(rshift(hostmax, 16), 0xff),
-			       and(rshift(hostmax,  8), 0xff),
-			       and(hostmax, 0xff))
-			break
-	}
+	printf("%s%d:%d.%d.%d.%d-%d.%d.%d.%d\n",
+	       $2,
+	       ++n[$2],
+	       and(rshift(hostmin, 24), 0xff),
+	       and(rshift(hostmin, 16), 0xff),
+	       and(rshift(hostmin,  8), 0xff),
+	       and(hostmin, 0xff),
+	       and(rshift(hostmax, 24), 0xff),
+	       and(rshift(hostmax, 16), 0xff),
+	       and(rshift(hostmax,  8), 0xff),
+	       and(hostmax, 0xff))
 }
 
 # vim: noet sw=8 ts=8

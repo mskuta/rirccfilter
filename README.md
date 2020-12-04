@@ -1,6 +1,6 @@
 # Description
 
-Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Organization) publish a daily updated and freely available file containing information on the distribution of Internet number resources. This file is called "delegated-extended". From there rirccfilter extracts IP ranges grouped by country and outputs them in different formats.
+Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Organization) publish a daily updated and freely available file containing information on the distribution of Internet number resources. This file is called "delegated-extended". From there rirccfilter extracts IP ranges grouped by country and outputs them in [P2P plaintext format](https://en.wikipedia.org/wiki/PeerGuardian#P2P_plaintext_format).
 
 
 # Installation
@@ -30,13 +30,9 @@ Each RIR (Regional Internet Registry) and their parent NRO (Number Resource Orga
 # Usage
 
 ```
-Usage: rirccfilter [-v cc=CC] [-v format=FORMAT]
+Usage: rirccfilter [-v cc=CC]
 
 CC has to be an ISO 3166 2-letter code.
-
-FORMAT can be one of:
-  cidr  Output IP ranges in CIDR address format.
-  p2p   Output IP ranges in P2P plaintext format (default).
 
 ```
 
@@ -48,14 +44,9 @@ Hint: Whereas datasets of individual RIRs contain only records about countries f
 
 ## Example
 
-Define an IP set called "ban-DE", download the latest RIR dataset, filter IP addresses from Germany, store them in the IP set and block TCP requests from its members to port 8080 in a Linux kernel firewall:
+Download the latest RIR dataset, filter IP addresses from Germany and store them in file `blocklist`:
 ```shell
-# package "ipset" has to be installed
-sudo ipset create ban-DE hash:net
-curl -fLsS https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended \
-  | rirccfilter -v cc=DE -v format=cidr \
-  | while read net; do sudo ipset add ban-DE $net; done
-sudo iptables --insert INPUT --protocol tcp --dport 8080 --match set --match-set ban-DE src --jump DROP
+curl -fLsS https://www.nro.net/wp-content/uploads/apnic-uploads/delegated-extended | rirccfilter -v cc=DE >blocklist
 ```
 
 
